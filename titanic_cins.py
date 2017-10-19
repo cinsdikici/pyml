@@ -9,8 +9,6 @@
 # (1) https://www.kaggle.com/helgejo/an-interactive-data-science-tutorial
 # (2) https://www.kaggle.com/c/titanic#tutorials
 # (3) https://www.kaggle.com/c/titanic/data
-#
-# GitHub:  https://github.com/cinsdikici/pyml
 
 import pandas as pd
 import numpy as np
@@ -46,8 +44,8 @@ cwd = os.getcwd() #Current Working Directory
 #datafd.close()
 
 #Read CSV text file into data_train as matrix
-data_train = pd.read_csv("../Kaggle/Titanic/Data/train.csv")
-data_test = pd.read_csv("../Kaggle/Titanic/Data/test.csv")
+data_train = pd.read_csv("../../Kaggle/Titanic/Data/train.csv")
+data_test = pd.read_csv("../../Kaggle/Titanic/Data/test.csv")
 # ignore_index makes the index value continou.. In this data
 # there is 890 training datarecord. If we use ignore_index=True
 # than index continous 891-->1309. If we omit it, appended index
@@ -161,8 +159,31 @@ print (corr_result, max(corr_result))
 # Than plot the most corrolated parameters with Survived.
 sn.barplot(y=corr_result.values,x=corr_result.index)
 
-
-
+#---- Passengers Prefixes of Names are categorized -----
+title = pd.DataFrame()
+title["Title"]= data_train.Name.map(lambda name: name.split(',')[1].split('.')[0].strip())
+Title_Dictionary = {
+                    "Capt":       "Officer",
+                    "Col":        "Officer",
+                    "Major":      "Officer",
+                    "Jonkheer":   "Royalty",
+                    "Don":        "Royalty",
+                    "Sir" :       "Royalty",
+                    "Dr":         "Officer",
+                    "Rev":        "Officer",
+                    "the Countess":"Royalty",
+                    "Dona":       "Royalty",
+                    "Mme":        "Mrs",
+                    "Mlle":       "Miss",
+                    "Ms":         "Mrs",
+                    "Mr" :        "Mr",
+                    "Mrs" :       "Mrs",
+                    "Miss" :      "Miss",
+                    "Master" :    "Master",
+                    "Lady" :      "Royalty"
+                    }
+title.Title = title.Title.map(Title_Dictionary)
+title = pd.get_dummies(title.Title)
 
 
 
