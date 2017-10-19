@@ -9,6 +9,8 @@
 # (1) https://www.kaggle.com/helgejo/an-interactive-data-science-tutorial
 # (2) https://www.kaggle.com/c/titanic#tutorials
 # (3) https://www.kaggle.com/c/titanic/data
+#
+# GitHub:  https://github.com/cinsdikici/pyml
 
 import pandas as pd
 import numpy as np
