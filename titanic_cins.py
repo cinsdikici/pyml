@@ -1,6 +1,6 @@
 #----- Cinsdikici Titanic Kaggle Problem ------
 # CopyRight: Muhammed Cinsdikici
-# Version  : 2017.10.19-13:20
+# Version  : 2017.10.19-16:30
 # Brief Exp: Takes Trainin Data and revision the data matrix
 #            a. Replaces "NaN" elements
 #            b. Expand Categories with subcategories
@@ -159,7 +159,7 @@ print (corr_result, max(corr_result))
 # Than plot the most corrolated parameters with Survived.
 sn.barplot(y=corr_result.values,x=corr_result.index)
 
-#---- Passengers Prefixes of Names are categorized -----
+#---- Passengers Prefixes of Names are categorized and added as new category-----
 title = pd.DataFrame()
 title["Title"]= data_train.Name.map(lambda name: name.split(',')[1].split('.')[0].strip())
 Title_Dictionary = {
@@ -184,6 +184,24 @@ Title_Dictionary = {
                     }
 title.Title = title.Title.map(Title_Dictionary)
 title = pd.get_dummies(title.Title)
+
+#-----Bilet iceriginde biletin ait oldugu seriyi kategorilestirmek
+def clean_ticket(bilet):
+    bilet = bilet.replace('.','')
+    bilet = bilet.replace('/','')
+    bilet = bilet.split()
+    bilet = map (lambda t: t.strip(), bilet)
+    bilet = list(filter (lambda t: not t.isdigit(),bilet))
+    if len(bilet)>0:
+        return bilet[0]
+    else:
+        return "XXX"
+
+bilet = pd.DataFrame()
+bilet["Ticket"] = data_train.Ticket.map(clean_ticket)
+bilet = pd.get_dummies(bilet.Ticket,prefix="Ticket")
+bilet.shape
+print(bilet.head())
 
 
 
