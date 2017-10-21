@@ -1,6 +1,6 @@
 #----- Cinsdikici Titanic Kaggle Problem ------
 # CopyRight: Muhammed Cinsdikici
-# Version  : 2017.10.19-16:30
+# Version  : 2017.10.21-14:00
 # Brief Exp: Takes Trainin Data and revision the data matrix
 #            a. Replaces "NaN" elements
 #            b. Expand Categories with subcategories
@@ -202,6 +202,17 @@ bilet["Ticket"] = data_train.Ticket.map(clean_ticket)
 bilet = pd.get_dummies(bilet.Ticket,prefix="Ticket")
 bilet.shape
 print(bilet.head())
+data_train=pd.concat([data_train,bilet],axis=1)
+data_train=data_train.drop("Ticket",axis=1)
 
+#--- Machine Learnin Algorithms
+# Model selection
+model1 = RandomForestClassifier(n_estimators=100)
+model2 = SVC()
+model3 = KNeighborsClassifier(n_neighbors=3)
+model4 = LogisticRegression()
+
+# Data Training of the Model
+# model1.fit(data_train_Input,data_train_Target)
 
 
