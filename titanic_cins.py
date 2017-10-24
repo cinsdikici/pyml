@@ -1,6 +1,6 @@
 #----- Cinsdikici Titanic Kaggle Problem ------
 # CopyRight: Muhammed Cinsdikici
-# Version  : 2017.10.21-14:00
+# Version  : 2017.10.24-18:30
 # Brief Exp: Takes Trainin Data and revision the data matrix
 #            a. Replaces "NaN" elements
 #            b. Expand Categories with subcategories
@@ -35,7 +35,6 @@ import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 import seaborn as sns
 
-
 cwd = os.getcwd() #Current Working Directory
 
 #----- Classic Text File Read at below
@@ -45,12 +44,11 @@ cwd = os.getcwd() #Current Working Directory
 
 #Read CSV text file into data_train as matrix
 data_train = pd.read_csv("../../Kaggle/Titanic/Data/train.csv")
-data_test = pd.read_csv("../../Kaggle/Titanic/Data/test.csv")
+data_test  = pd.read_csv("../../Kaggle/Titanic/Data/test.csv")
 # ignore_index makes the index value continou.. In this data
 # there is 890 training datarecord. If we use ignore_index=True
 # than index continous 891-->1309. If we omit it, appended index
 # starts with 0 again and end with 417.
-data_full = data_train.append(data_test,ignore_index = True)
 """
 Variable Description
 ------------------------------------
@@ -78,12 +76,6 @@ print(data_train.describe())
 #print (data_train["Sex"])
 sn.barplot(x="Sex", y="Survived", data=data_train)
 
-#------Correlation Matrix -----
-# Look which parameters are correlated with it
-# We see Survival is correlated with 
-# Fare(0.257) and Parch(0.081)
-corr= data_train.corr()
-print (corr)
 
 #------Barplot both variables -----
 # Barplot the variable with target
@@ -102,8 +94,14 @@ print (corr)
 #both line below make the same operation.
 #data_train["Age"]=data_train.Age.fillna(data_train.Age.mean())
 data_train.Age=data_train.Age.fillna(data_train.Age.mean())
-
 data_train["Cabin"]=data_train.Cabin.fillna("U")
+
+data_test.Age=data_test.Age.fillna(data_test.Age.mean())
+data_test["Cabin"]=data_test.Cabin.fillna("U")
+
+# To see the parameters list..
+list([data_train.columns.values,"   ", data_test.columns.values])
+Pausing = input("1. Check the Columns of after Cabin NaN Check Train and Test Data than Press <ENTER> to continue")
 
 
 #------Butunlesik Kategorileri Ayri Ayri ele almak-------
@@ -118,12 +116,30 @@ print(embarked)
 data_train=pd.concat([data_train,embarked],axis=1)
 data_train=data_train.drop("Embarked",axis=1)
 
+embarked = pd.get_dummies(data_test.Embarked , prefix='Embarked' )
+data_test=pd.concat([data_test,embarked],axis=1)
+data_test=data_test.drop("Embarked",axis=1)
+
+# To see the parameters list..
+list([data_train.columns.values,"   ", data_test.columns.values])
+Pausing = input("2. Check the Columns of after Embark Train and Test Data than Press <ENTER> to continue")
+
+
 #pclass --> ticketlar ayri ayri
 # parametre haline getiriliyor.
 pclass = pd.get_dummies(data_train.Pclass , prefix='Pclass' )
 print(pclass)
 data_train=pd.concat([data_train,pclass],axis=1)
 data_train=data_train.drop("Pclass",axis=1)
+
+pclass = pd.get_dummies(data_test.Pclass , prefix='Pclass' )
+data_test=pd.concat([data_test,pclass],axis=1)
+data_test=data_test.drop("Pclass",axis=1)
+
+# To see the parameters list..
+list([data_train.columns.values,"   ", data_test.columns.values])
+Pausing = input("3. Check the Columns of after PClass Train and Test Data than Press <ENTER> to continue")
+
 
 #Cabin --> Oda 0simlerinin ilk harflerine gore kategorize edilip
 # parametre haline getiriliyor.
@@ -134,34 +150,34 @@ print(kabin)
 data_train=pd.concat([data_train,kabin],axis=1)
 data_train=data_train.drop("Cabin",axis=1)
 
+
+kabin = pd.DataFrame()
+kabin.Cabin= data_test['Cabin'].map( lambda c: c[0] )
+kabin = pd.get_dummies(kabin.Cabin, prefix='Cabin')
+data_test=pd.concat([data_test,kabin],axis=1)
+data_test=data_test.drop("Cabin",axis=1)
+
+# To see the parameters list..
+list([data_train.columns.values,"   ", data_test.columns.values])
+Pausing = input("4. Check the Columns of after Cabin Removal Check Train and Test Data than Press <ENTER> to continue")
+
+
+
 #------ Conversion of Category names to Binary data -----
 #Convert Sex category values male,female into binary 1,0
 # a column of Dataframe is "Series"
 # numpy's where function is used to find values "male" in Series.
 data_train.Sex  = pd.Series(np.where(data_train.Sex=="male",1,0),name="Sex")
+data_test.Sex   = pd.Series(np.where(data_test.Sex=="male",1,0),name="Sex")
 
 
 #------ To see each element in Trainin data in classical way ------
 # to see each Name in the training data
-for i in range(0,len(data_train.Name)):
+for i in range(800,len(data_train.Name)):
     print(i,".ci isim",data_train.Name[i])
 
-#------ To calculate & Visualise correlation of each parameters in Training data
-# Look which parameters are correlated mostly with Survived
-# First take correlation matrix of data_Train
-corr= data_train.corr()
-#print (corr) 
-
-# to see which parameters -or indexes- 
-# corrolated with Survived where corr > 0
-corr_result=pd.Series(np.where(corr.Survived > 0,corr.Survived,0),corr.index)
-print (corr_result, max(corr_result))
-# Than plot the most corrolated parameters with Survived.
-sn.barplot(y=corr_result.values,x=corr_result.index)
 
 #---- Passengers Prefixes of Names are categorized and added as new category-----
-title = pd.DataFrame()
-title["Title"]= data_train.Name.map(lambda name: name.split(',')[1].split('.')[0].strip())
 Title_Dictionary = {
                     "Capt":       "Officer",
                     "Col":        "Officer",
@@ -182,8 +198,23 @@ Title_Dictionary = {
                     "Master" :    "Master",
                     "Lady" :      "Royalty"
                     }
+title = pd.DataFrame()
+title["Title"]= data_train.Name.map(lambda name: name.split(',')[1].split('.')[0].strip())
 title.Title = title.Title.map(Title_Dictionary)
 title = pd.get_dummies(title.Title)
+data_train = pd.concat([data_train,title],axis=1)
+
+title = pd.DataFrame()
+title["Title"]= data_test.Name.map(lambda name: name.split(',')[1].split('.')[0].strip())
+title.Title = title.Title.map(Title_Dictionary)
+title = pd.get_dummies(title.Title)
+data_test = pd.concat([data_test,title],axis=1)
+
+# To see the parameters list..
+list([data_train.columns.values,"   ", data_test.columns.values])
+Pausing = input("5. Check the Columns of after Title Mr/Mss Check Train and Test Data than Press <ENTER> to continue")
+
+
 
 #-----Bilet iceriginde biletin ait oldugu seriyi kategorilestirmek
 def clean_ticket(bilet):
@@ -204,6 +235,50 @@ bilet.shape
 print(bilet.head())
 data_train=pd.concat([data_train,bilet],axis=1)
 data_train=data_train.drop("Ticket",axis=1)
+
+
+bilet = pd.DataFrame()
+bilet["Ticket"] = data_test.Ticket.map(clean_ticket)
+bilet = pd.get_dummies(bilet.Ticket,prefix="Ticket")
+bilet.shape
+print(bilet.head())
+data_test=pd.concat([data_test,bilet],axis=1) 
+data_test=data_test.drop("Ticket",axis=1)
+
+
+# To see the parameters list..
+list([data_train.columns.values,"   ", data_test.columns.values])
+Pausing = input("6. Check the Columns of after Ticket Check Train and Test Data than Press <ENTER> to continue")
+
+
+#--- Data_Full = Data_Train + Data_Test
+data_full = pd.DataFrame()
+data_full = data_train.append(data_test,ignore_index = True)
+
+#------Correlation Matrix -----
+# Look which parameters are correlated with it
+# We see Survival is correlated with 
+# Fare(0.257) and Parch(0.081)
+
+#------ To calculate & Visualise correlation of each parameters in Training data
+# Look which parameters are correlated mostly with Survived
+# First take correlation matrix of data_Train
+corr= data_train.corr()
+#print (corr) 
+
+# to see which parameters -or indexes- 
+# corrolated with Survived where corr > 0
+corr_result=pd.Series(np.where(corr.Survived > 0,corr.Survived,0),corr.index)
+print (corr_result, max(corr_result))
+# Than plot the most corrolated parameters with Survived.
+sn.barplot(y=corr_result.values,x=corr_result.index)
+
+
+corr= data_full.corr()
+print (corr)
+
+
+
 
 #--- Machine Learnin Algorithms
 # Model selection
