@@ -1,6 +1,6 @@
 #----- Cinsdikici Titanic Kaggle Problem ------
 # CopyRight: Muhammed Cinsdikici
-# Version  : 2017.10.24-18:30
+# Version  : 2017.10.25-18:45
 # Brief Exp: Takes Trainin Data and revision the data matrix
 #            a. Replaces "NaN" elements
 #            b. Expand Categories with subcategories
@@ -45,6 +45,7 @@ cwd = os.getcwd() #Current Working Directory
 #Read CSV text file into data_train as matrix
 data_train = pd.read_csv("../../Kaggle/Titanic/Data/train.csv")
 data_test  = pd.read_csv("../../Kaggle/Titanic/Data/test.csv")
+data_tumset = data_train.append(data_test,ignore_index=True)
 # ignore_index makes the index value continou.. In this data
 # there is 890 training datarecord. If we use ignore_index=True
 # than index continous 891-->1309. If we omit it, appended index
@@ -63,6 +64,39 @@ Ticket: Ticket number
 Fare: Fare
 Cabin: Cabin
 Embarked: Port of embarkation
+"""
+
+"""
+Difference Between Data_Train & Data_Test
+-----------------------------------------
+Some of the parameter values does not included in Data_Train
+It should be problem for recalling the system that we are
+going to build to test.
+
+In Data_Train these values (Ticket Category) are not available
+------------------
+1. Ticket_A
+2. Ticket_AQ3
+3. Ticket_AQ4
+4. Ticket_LP
+5. Ticket_SCA3
+6. Ticket_STONOQ
+
+In Data_Test these values (Ticket category and a Cabin Category) are not available
+------------------
+0. Cabin_T
+1. Ticket_AS
+2. Ticket_CASATON
+3. Ticket_Fa
+4. Ticket_LINE
+5. Ticket_PPP
+6. Ticket_SCOW
+7. Ticket_SOP
+8. Ticket_SP
+9. Ticket_SWPP
+
+In Data_Tumset, All Categories are constructed. 66 Categories are
+existing in the final form of Data_Tumset.
 """
 
 # print the data_train header 5 lines from matrix
@@ -99,9 +133,14 @@ data_train["Cabin"]=data_train.Cabin.fillna("U")
 data_test.Age=data_test.Age.fillna(data_test.Age.mean())
 data_test["Cabin"]=data_test.Cabin.fillna("U")
 
+
+# Dikkat TumSet'in NaN elemanlari TumSet'in mean'i ile degistirildi
+data_tumset.Age=data_tumset.Age.fillna(data_tumset.Age.mean())
+data_tumset["Cabin"]=data_tumset.Cabin.fillna("U")
+
 # To see the parameters list..
 list([data_train.columns.values,"   ", data_test.columns.values])
-Pausing = input("1. Check the Columns of after Cabin NaN Check Train and Test Data than Press <ENTER> to continue")
+# Pausing = input("1. Check the Columns of after Cabin NaN Check Train and Test Data than Press <ENTER> to continue")
 
 
 #------Butunlesik Kategorileri Ayri Ayri ele almak-------
@@ -109,7 +148,7 @@ Pausing = input("1. Check the Columns of after Cabin NaN Check Train and Test Da
 # kategori olacak _ekilde ç1kart1lmaktad1r. Elde edilen Dataframe
 # yeni bir dataframe'dir.
 
-#embark--> liman isimlerini ayri ayri 
+#embark--> liman isimlerini ayri ayri set
 # parametre haline getirmek.
 embarked = pd.get_dummies(data_train.Embarked , prefix='Embarked' )
 print(embarked)
@@ -120,9 +159,13 @@ embarked = pd.get_dummies(data_test.Embarked , prefix='Embarked' )
 data_test=pd.concat([data_test,embarked],axis=1)
 data_test=data_test.drop("Embarked",axis=1)
 
+embarked = pd.get_dummies(data_tumset.Embarked , prefix='Embarked' )
+data_tumset=pd.concat([data_tumset,embarked],axis=1)
+data_tumset=data_tumset.drop("Embarked",axis=1)
+
 # To see the parameters list..
-list([data_train.columns.values,"   ", data_test.columns.values])
-Pausing = input("2. Check the Columns of after Embark Train and Test Data than Press <ENTER> to continue")
+#list([data_train.columns.values,"   ", data_test.columns.values])
+#Pausing = input("2. Check the Columns of after Embark Train and Test Data than Press <ENTER> to continue")
 
 
 #pclass --> ticketlar ayri ayri
@@ -136,9 +179,13 @@ pclass = pd.get_dummies(data_test.Pclass , prefix='Pclass' )
 data_test=pd.concat([data_test,pclass],axis=1)
 data_test=data_test.drop("Pclass",axis=1)
 
+pclass = pd.get_dummies(data_tumset.Pclass , prefix='Pclass' )
+data_tumset=pd.concat([data_tumset,pclass],axis=1)
+data_tumset=data_tumset.drop("Pclass",axis=1)
+
 # To see the parameters list..
-list([data_train.columns.values,"   ", data_test.columns.values])
-Pausing = input("3. Check the Columns of after PClass Train and Test Data than Press <ENTER> to continue")
+#list([data_train.columns.values,"   ", data_test.columns.values])
+#Pausing = input("3. Check the Columns of after PClass Train and Test Data than Press <ENTER> to continue")
 
 
 #Cabin --> Oda 0simlerinin ilk harflerine gore kategorize edilip
@@ -157,9 +204,16 @@ kabin = pd.get_dummies(kabin.Cabin, prefix='Cabin')
 data_test=pd.concat([data_test,kabin],axis=1)
 data_test=data_test.drop("Cabin",axis=1)
 
+kabin = pd.DataFrame()
+kabin.Cabin= data_tumset['Cabin'].map( lambda c: c[0] )
+kabin = pd.get_dummies(kabin.Cabin, prefix='Cabin')
+data_tumset=pd.concat([data_tumset,kabin],axis=1)
+data_tumset=data_tumset.drop("Cabin",axis=1)
+
+
 # To see the parameters list..
-list([data_train.columns.values,"   ", data_test.columns.values])
-Pausing = input("4. Check the Columns of after Cabin Removal Check Train and Test Data than Press <ENTER> to continue")
+#list([data_train.columns.values,"   ", data_test.columns.values])
+#Pausing = input("4. Check the Columns of after Cabin Removal Check Train and Test Data than Press <ENTER> to continue")
 
 
 
@@ -169,11 +223,12 @@ Pausing = input("4. Check the Columns of after Cabin Removal Check Train and Tes
 # numpy's where function is used to find values "male" in Series.
 data_train.Sex  = pd.Series(np.where(data_train.Sex=="male",1,0),name="Sex")
 data_test.Sex   = pd.Series(np.where(data_test.Sex=="male",1,0),name="Sex")
+data_tumset.Sex = pd.Series(np.where(data_tumset.Sex=="male",1,0),name="Sex")
 
 
 #------ To see each element in Trainin data in classical way ------
 # to see each Name in the training data
-for i in range(800,len(data_train.Name)):
+for i in range(860,len(data_train.Name)):
     print(i,".ci isim",data_train.Name[i])
 
 
@@ -210,9 +265,16 @@ title.Title = title.Title.map(Title_Dictionary)
 title = pd.get_dummies(title.Title)
 data_test = pd.concat([data_test,title],axis=1)
 
+
+title = pd.DataFrame()
+title["Title"]= data_tumset.Name.map(lambda name: name.split(',')[1].split('.')[0].strip())
+title.Title = title.Title.map(Title_Dictionary)
+title = pd.get_dummies(title.Title)
+data_tumset = pd.concat([data_tumset,title],axis=1)
+
 # To see the parameters list..
-list([data_train.columns.values,"   ", data_test.columns.values])
-Pausing = input("5. Check the Columns of after Title Mr/Mss Check Train and Test Data than Press <ENTER> to continue")
+#list([data_train.columns.values,"   ", data_test.columns.values])
+#Pausing = input("5. Check the Columns of after Title Mr/Mss Check Train and Test Data than Press <ENTER> to continue")
 
 
 
@@ -245,10 +307,22 @@ print(bilet.head())
 data_test=pd.concat([data_test,bilet],axis=1) 
 data_test=data_test.drop("Ticket",axis=1)
 
+bilet = pd.DataFrame()
+bilet["Ticket"] = data_tumset.Ticket.map(clean_ticket)
+bilet = pd.get_dummies(bilet.Ticket,prefix="Ticket")
+bilet.shape
+print(bilet.head())
+data_tumset=pd.concat([data_tumset,bilet],axis=1) 
+data_tumset=data_tumset.drop("Ticket",axis=1)
 
 # To see the parameters list..
-list([data_train.columns.values,"   ", data_test.columns.values])
-Pausing = input("6. Check the Columns of after Ticket Check Train and Test Data than Press <ENTER> to continue")
+#list([data_train.columns.values,"   ", data_test.columns.values])
+#Pausing = input("6. Check the Columns of after Ticket Check Train and Test Data than Press <ENTER> to continue")
+
+
+#--- Obtain Train and Test again from tumset
+data_train_tumset = data_tumset[:891]
+data_test_tumset = data_tumset[891:]
 
 
 #--- Data_Full = Data_Train + Data_Test
