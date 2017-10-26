@@ -17,6 +17,13 @@ import os
 
 
 # Modelling Algorithms
+from sklearn.neural_network import MLPClassifier
+from sklearn import metrics
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_auc_score
+
+
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
@@ -337,7 +344,7 @@ data_full = data_train.append(data_test,ignore_index = True)
 #------ To calculate & Visualise correlation of each parameters in Training data
 # Look which parameters are correlated mostly with Survived
 # First take correlation matrix of data_Train
-corr= data_train.corr()
+corr= data_tumset.corr()
 #print (corr) 
 
 # to see which parameters -or indexes- 
@@ -348,8 +355,8 @@ print (corr_result, max(corr_result))
 sn.barplot(y=corr_result.values,x=corr_result.index)
 
 
-corr= data_full.corr()
-print (corr)
+#corr= data_full.corr()
+#print (corr)
 
 
 
